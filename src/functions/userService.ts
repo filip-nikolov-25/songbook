@@ -1,0 +1,33 @@
+import { database } from "@/firebase";
+import {  AllChords, SongType } from "@/types/types";
+import { get, ref, set } from "firebase/database";
+
+
+export const createSong = async (songName: string, songData: { text: string; chord: string }[]) => {
+  try {
+    await set(ref(database, "songs/" + songName), songData);
+  } catch (error) {
+    console.error("Error saving song data:", error);
+  }
+};
+
+export const getSong = async (songName: string) => {
+  try {
+    const snapshot = await get(ref(database, "songs/" + songName));
+    if (snapshot.exists()) {
+      return snapshot.val(); 
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching song data:", error);
+  }
+};
+
+export const setChords = async (allChords: AllChords) => {
+  try {
+    await set(ref(database,"allChords" ), allChords);
+  } catch (error) {
+    console.error("Error happened:", error);
+  }
+};

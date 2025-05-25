@@ -1,0 +1,45 @@
+import ChooseKeyPopUp from "@/components/AddSongPage/ChooseKeyPopUp";
+import CreateSong from "@/components/AddSongPage/CreateSong";
+import { AllChords } from "@/types/types";
+import { GetStaticProps } from "next";
+import { useState } from "react";
+
+interface Props {
+  allChordsData: AllChords;
+}
+
+const AddSong = ({ allChordsData }: Props) => {
+  const [chooseKey, setChooseKey] = useState<string>("");
+  const [text, setText] = useState("");
+  const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] =
+    useState<boolean>(false);
+
+  return (
+    <div className="bg-gradient-to-r from-[#751006] to-[#1f0021]">
+      <CreateSong
+        setText={setText}
+        allChordsData={allChordsData}
+        keyOfASong={chooseKey}
+        text={text}
+      />
+      <h2 className="mt-4 font-bold">Original Text:</h2>
+      <h2 className="mt-4 font-bold">Filtered Text:</h2>
+      <h2 className="mt-4 font-bold">Chords:</h2>
+      <ChooseKeyPopUp setChooseKey={setChooseKey} />
+      <button onClick={() => setIsChooseKeyPopUpOpen(true)} className="text-white bg-cyan-500">Open</button>
+    </div>
+  );
+};
+
+export default AddSong;
+
+export const getStaticProps: GetStaticProps = async () => {
+  const chordRes = await fetch("http://localhost:5000/allChords");
+  const allChordsData = await chordRes.json();
+  
+  return {
+    props: {
+      allChordsData,
+    },
+  };
+};

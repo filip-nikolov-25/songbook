@@ -1,0 +1,52 @@
+{
+  "allChords": {
+    "cMajorORaMinor": {
+      "id": 1,
+      "chordScale": ["C", "Dm", "Em", "F", "G", "Am", "E-dur"]
+    },
+    "cSharpMajorORbMinor": {
+      "id": 2,
+      "chordScale": ["C#", "D#m", "Fm", "F#", "G#", "Bm", "F-dur"]
+    },
+    "dMajorORhMinor": {
+      "id": 3,
+      "chordScale": ["D", "Em", "F#m", "G", "A", "Hm", "F#-dur"]
+    },
+    "dSharpMajorORcMinor": {
+      "id": 4,
+      "chordScale": ["D#", "Fm", "Gm", "G#", "B", "Cm", "G-dur"]
+    },
+    "eMajorORcSharpMinor": {
+      "id": 5,
+      "chordScale": ["E", "F#m", "G#m", "A", "H", "C#m", "G-dur"]
+    },
+    "fMajorORdMinor": {
+      "id": 6,
+      "chordScale": ["F", "Dm", "Am", "B", "C", "Gm", "A-dur"]
+    },
+    "fSharpMajorORdSharpMinor": {
+      "id": 7,
+      "chordScale": ["F#", "G#m", "Bm", "H", "C#", "Dm", "B-dur"]
+    },
+    "gMajorORdeMinor": {
+      "id": 8,
+      "chordScale": ["G", "Am", "Hm", "C", "D", "Em", "H-dur"]
+    },
+    "gSharpMajorORdFMinor": {
+      "id": 9,
+      "chordScale": ["G#", "Bm", "Cm", "C#", "D#", "Fm", "C-dur"]
+    },
+    "aMajorORfSharpMinor": {
+      "id": 10,
+      "chordScale": ["A", "Hm", "C#m", "D", "E", "F#m", "C#-dur"]
+    },
+    "bMajorORgMinor": {
+      "id": 11,
+      "chordScale": ["B", "Cm", "Dm", "D#", "F", "Gm", "D-dur"]
+    },
+    "hMajorORgSharpMinor": {
+      "id": 12,
+      "chordScale": ["H", "C#m", "D#m", "E", "F#", "G#m", "D#-dur"]
+    }
+  }
+}
