@@ -12,7 +12,7 @@ const AddSong = ({ allChordsData }: Props) => {
   const [chooseKey, setChooseKey] = useState<string>("");
   const [text, setText] = useState("");
   const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] =
-    useState<boolean>(false);
+    useState(false);
 
   return (
     <div className="bg-gradient-to-r from-[#751006] to-[#1f0021]">
@@ -23,10 +23,8 @@ const AddSong = ({ allChordsData }: Props) => {
         text={text}
       />
       <h2 className="mt-4 font-bold">Original Text:</h2>
-      <h2 className="mt-4 font-bold">Filtered Text:</h2>
-      <h2 className="mt-4 font-bold">Chords:</h2>
-      <ChooseKeyPopUp setChooseKey={setChooseKey} />
-      <button onClick={() => setIsChooseKeyPopUpOpen(true)} className="text-white bg-cyan-500">Open</button>
+      {isChooseKeyPopUpOpen &&  <ChooseKeyPopUp setChooseKey={setChooseKey} />}
+      <button onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)} className="text-white bg-cyan-500">Open</button>
     </div>
   );
 };

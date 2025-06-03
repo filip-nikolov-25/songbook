@@ -56,8 +56,8 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
 
   return (
     <>
-      <div className="">
-        <div className="w-1/2">
+      <div className="relative h-[100vh]">
+        {/* <div className="w-1/2">
           <input
             type="text"
             placeholder="Enter name of the song"
@@ -73,20 +73,81 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
             }}
             className="p-2 w-full h-40 mt-4"
           ></textarea>
-        </div>
-        <div className="w-1/2">
-          {allChords.map((chord) => (
-            <div
+        </div> */}
+        <div className="w-1/2 h-[100vh] absolute top-1/3 left-1/2  ">
+        <div className="relative ">
+          <div className="w-[150px] h-[150px] bg-white rounded-full flex justify-center items-center">B</div>
+
+          {allChords.map((chord,index) => {
+            
+            if(index === 0 ) {
+              return   <div
               onClick={() => handleAddChord(text, chord)}
               key={chord}
-              className="bg-cyan-500 p-2 m-2 cursor-pointer"
-            >
+              className="bg-cyan-500 absolute top-[-47%] right-[88.2%] w-14 h-14 rounded-full flex justify-center items-center  p-2 m-2 cursor-pointer"
+              >
               {chord}
             </div>
-          ))}
+            }
+            if(index === 1 ) {
+              return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 absolute top-[83%] right-[80.5%] rounded-full w-14 h-14 flex justify-center items-center p-2 m-2 cursor-pointer"
+              >
+              {chord}
+            </div>
+            }
+            if(index === 2 ) {
+              return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 p-2 m-2 cursor-pointer absolute top-[83%] right-[96.2%] rounded-full w-14 h-14 flex justify-center items-center "
+              >
+              {chord}
+            </div>
+            }
+            if(index === 3 ) {
+              return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 p-2 m-2 cursor-pointer absolute top-[-30%] right-[96%] rounded-full w-14 h-14 flex justify-center items-center"
+              >
+              {chord}
+            </div>
+            }
+            if(index === 4 ) {
+            return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 p-2 m-2 cursor-pointer absolute top-[-30%] right-[80.5%] rounded-full w-14 h-14 flex justify-center items-center "
+              >
+              {chord}
+            </div>
+            }
+            if(index === 5 ) {
+              return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 p-2 m-2 cursor-pointer absolute top-[99.5%] right-[88.2%] rounded-full w-14 h-14 flex justify-center items-center "
+              >
+              {chord}
+            </div>
+            }
+            if(index === 6 ) {
+              return   <div
+              onClick={() => handleAddChord(text, chord)}
+              key={chord}
+              className="bg-cyan-500 p-2 m-2 cursor-pointer absolute top-[14.7%] right-[27.5%] rounded-full w-14 h-14 flex justify-center items-center"
+              >
+              {chord}
+            </div>
+            }
+          })}
+          </div>
         </div>
       </div>
-      <div className="flex  ">
+      {/* <div className="flex  ">
         {justWrittenVerse && justWrittenVerse.length > 0 ? (
           justWrittenVerse.map((entry, index) => (
             <div className="flex " key={index}>
@@ -99,7 +160,7 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
             Add chord to see your latest added verse
           </p>
         )}
-      </div>
+      </div> */}
     </>
   );
 };
