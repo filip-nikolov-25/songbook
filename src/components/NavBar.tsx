@@ -54,7 +54,7 @@ const NavBar = () => {
                   Add your song
                 </li>
               </Link>
-              <Link href={"/contact"}>
+              {/* <Link href={"/contact"}>
                 <li
                   onClick={() => setIsClicked(4)}
                   className={` mt-1 rounded-b-xl hover:text-white border-b-2 px-5 py-1 cursor-pointer ${
@@ -63,7 +63,7 @@ const NavBar = () => {
                 >
                   Contact Us
                 </li>
-              </Link>
+              </Link> */}
             </ul>
           </div>
         </div>

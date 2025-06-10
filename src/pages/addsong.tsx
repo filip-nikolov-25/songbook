@@ -22,9 +22,8 @@ const AddSong = ({ allChordsData }: Props) => {
         keyOfASong={chooseKey}
         text={text}
       />
-      <h2 className="mt-4 font-bold">Original Text:</h2>
+      {/* <button onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)} className="text-white bg-cyan-500">Transpose your song</button> */}
       {isChooseKeyPopUpOpen &&  <ChooseKeyPopUp setChooseKey={setChooseKey} />}
-      <button onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)} className="text-white bg-cyan-500">Open</button>
     </div>
   );
 };

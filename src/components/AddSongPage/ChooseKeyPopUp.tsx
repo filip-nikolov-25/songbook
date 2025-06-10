@@ -21,7 +21,7 @@ const ChooseKeyPopUp = ({ setChooseKey }: Props) => {
   ];
 
   return (
-    <div className="p-20 bg-green-600 w-4/5 mx-auto rounded-3xl">
+    <div className="p-20 bg-black w-4/5 mx-auto rounded-3xl">
       <div className="grid grid-cols-6 gap-4">
         {keys.map((key, index) => (
           <button
@@ -29,7 +29,7 @@ const ChooseKeyPopUp = ({ setChooseKey }: Props) => {
             onClick={() => {
               setChooseKey(key.scale)
             }}
-            className="bg-white px-5 py-5 rounded-full w-full"
+            className="bg-red-500 px-5 py-5 rounded-full w-full"
           >
             {key.chord}
           </button>
