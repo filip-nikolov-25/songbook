@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import SignInWIthGoogleButton from "../SignInWIthGoogleButton";
 
 const Home = () => {
   return (
@@ -26,7 +27,6 @@ const Home = () => {
           >
             Choose a song to play
           </button>
-
         </Link>
       </div>
     </div>

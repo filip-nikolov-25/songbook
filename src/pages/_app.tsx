@@ -1,4 +1,5 @@
 import NavBar from "@/components/NavBar";
+import SelectedSongProvider from "@/context/clickedSongContext";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import Head from "next/head";
@@ -13,10 +14,13 @@ export default function App({ Component, pageProps }: AppProps) {
           crossOrigin="anonymous"
         ></script>{" "}
       </Head>
+      <SelectedSongProvider>
+
       <div className="sticky top-0 z-50">
         <NavBar />
       </div>
       <Component {...pageProps} />
+      </SelectedSongProvider>
     </>
   );
 }

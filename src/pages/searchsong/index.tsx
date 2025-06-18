@@ -1,14 +1,20 @@
-import { arrOfSongs } from "@/components/allsongs";
-import React, { useEffect, useState } from "react";
+import SelectedSongProvider, {
+  SelectedSongContext,
+} from "@/context/clickedSongContext";
+import { getAllSongs, getSong } from "@/functions/userService";
+import Link from "next/link";
+import React, { useContext, useEffect, useState } from "react";
 
 const Searchsong = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debounced, setDebounced] = useState("");
+  const [allSongs, setAllSongs] = useState<string[]>();
+  const { selectSong } = useContext(SelectedSongContext);
 
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounced(searchTerm);
-      setShowMore(10)
+      setShowMore(10);
     }, 700);
 
     return () => {
@@ -16,23 +22,35 @@ const Searchsong = () => {
     };
   }, [searchTerm]);
 
-  const filteredSongs = arrOfSongs.filter((song) =>
+  const filteredSongs = allSongs?.filter((song) =>
     song.toLowerCase().includes(debounced.toLowerCase())
   );
   const [showMore, setShowMore] = useState(10);
-
-  console.log(filteredSongs.length, showMore, "AJ DA VIDEME");
+  const fetchSongs = async () => {
+    const songs = await getAllSongs();
+    setAllSongs(songs);
+  };
+  useEffect(() => {
+    fetchSongs();
+  });
 
   return (
     <div className="bg-black">
       <div className="flex w-[98%] m-auto">
         <div className="w-1/6 border-r-2 bg-gradient-to-r from-black to-red-900  border-red-300 p-5 border-l-2  rounded-l-3xl rounded-r-[80%]">
-          {arrOfSongs.map((song) => (
+          {allSongs?.map((song) => (
             <div
               key={song}
               className="text-gray-400 hover:text-white cursor-pointer"
+              onClick={() => {
+                selectSong(song);
+              }}
             >
-              {song}
+              <Link
+                href={`/searchsong/${song.replace(/\s+/g, "").toLowerCase()}`}
+              >
+                <span>{song}</span>
+              </Link>
             </div>
           ))}
         </div>
@@ -47,13 +65,22 @@ const Searchsong = () => {
           </div>
 
           {debounced.length > 0 ? (
-            filteredSongs.length > 0 ? (
-              filteredSongs.slice(0, showMore).map((song) => (
+            filteredSongs?.length > 0 ? (
+              filteredSongs?.slice(0, showMore).map((song) => (
                 <p
                   key={song}
+                  onClick={() => {
+                    selectSong(song);
+                  }}
                   className="mt-5 w-1/2 m-auto py-2 shadow-xl border-2 shadow-red-100 text-center bg-white rounded-b-full"
                 >
-                  {song}
+                  <Link
+                    href={`/searchsong/${song
+                      .replace(/\s+/g, "")
+                      .toLowerCase()}`}
+                  >
+                    <span>{song}</span>
+                  </Link>
                 </p>
               ))
             ) : (
@@ -66,18 +93,42 @@ const Searchsong = () => {
               Search a song
             </div>
           )}
-          {debounced.length > 0 && showMore < filteredSongs.length  && (
+          {debounced.length > 0 && showMore < filteredSongs?.length && (
             <div className="flex justify-center mt-8">
               <button
                 onClick={() => setShowMore((prevState) => prevState + 5)}
                 className="text-gray-300 hover:text-white hover:shadow-lg hover:shadow-red-300 px-10 py-2 rounded-md border-2 bg-transparent"
               >
-                Show more{" "}
+                Show more
               </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* {clickedSong.length > 0 && (
+        <div className="w-1/2 mx-auto border-l-white border-x-2 border-b-2 rounded-lg py-10">
+          <div className="flex flex-wrap gap-y-5 px-4">
+            {fetchOneSong && fetchOneSong.length > 0 ? (
+              fetchOneSong.map((entry, index) => (
+                <div
+                  className="flex flex-col items-start min-w-[64px] text-left"
+                  key={index}
+                >
+                  <span className="text-yellow-300 text-sm mb-1">
+                    {entry.chord}
+                  </span>
+                  <span className="text-white mr-3 text-lg whitespace-nowrap">
+                    {entry.text}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-red-500">FOUND SONG</p>
+            )}
+          </div>
+        </div>
+      )} */}
     </div>
   );
 };

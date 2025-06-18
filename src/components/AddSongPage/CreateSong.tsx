@@ -19,12 +19,6 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
     { text: string; chord: string }[]
   >([]);
 
-  const handleGetSong = async (songName: string) => {
-    const song = await getSong(songName);
-    if (song) {
-      setJustWrittenVerse(song);
-    }
-  };
 
   useEffect(() => {
     if (allChordsData) {
@@ -36,20 +30,23 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
     }
   }, [allChordsData, keyOfASong]);
 
-  const handleAddChord = (text: string, chord: string) => {
-    if (text) {
-      setVerseData((prevState) => [...prevState, { text, chord }]);
-      setText("");
-    } else if (chord) {
-      setVerseData((prevState) => [...prevState, { text: "", chord: chord }]);
-    } else {
-      alert("Please enter text or chord for the verse.");
-    }
-  };
+const handleAddChord = (text: string, chord: string) => {
+  if (text && chord) {
+    setVerseData((prevState) => [...prevState, { text, chord }]);
+    setText("");
+  } else if (text) {
+    setVerseData((prevState) => [...prevState, { text, chord: "" }]);
+    setText("");
+  } else if (chord) {
+    setVerseData((prevState) => [...prevState, { text: "", chord }]);
+  } else {
+    alert("Please enter text or chord for the verse.");
+  }
+};
   const baseClass = `w-14 h-14 rounded-full flex justify-center items-center p-2 m-2 cursor-pointer backdrop-blur-md bg-black/40 shadow-lg text-white hover:text-white hover:shadow-white`;
 
   return (
-    <div className="w-11/12 h-[90.7vh] pt-20 m-auto">
+    <div className="w-11/12  pt-20 m-auto">
       <div className="flex">
         <div className="w-1/2 mr-10 ">
           <input
@@ -80,7 +77,7 @@ const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
                   <span className="text-yellow-300 text-sm mb-1">
                     {entry.chord}
                   </span>
-                  <span className="text-white text-lg whitespace-nowrap">
+                  <span className="text-white mr-3 text-lg whitespace-nowrap">
                     {entry.text}
                   </span>
                 </div>

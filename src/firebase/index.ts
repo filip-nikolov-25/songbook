@@ -1,5 +1,11 @@
 import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  UserCredential,
+} from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -12,7 +18,18 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 const database = getDatabase(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+auth.languageCode = "en";
 
-export { database, app };
+export async function signInWithGoogle(): Promise<UserCredential | void> {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    return result;
+  } catch (error) {
+    console.error("sign-in failed:", error);
+  }
+}
+
+export { app, auth, database };

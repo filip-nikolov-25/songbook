@@ -34,7 +34,7 @@ const NavBar = () => {
                   View songs
                 </li>
               </Link>
-              <Link href={"/joinus"}>
+              <Link href={"/signin"}>
                 <li
                   onClick={() => setIsClicked(2)}
                   className={`mr-5 mt-1 rounded-b-xl hover:text-white border-b-2 px-5 py-1 cursor-pointer ${
