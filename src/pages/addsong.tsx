@@ -33,6 +33,8 @@ const AddSong = ({ allChordsData }: Props) => {
     try {
       await signOut(auth);
       console.log("User signed out successfully");
+      localStorage.removeItem("modalOpenCounter")
+      localStorage.setItem("user","true")
     } catch (error) {
       console.error("Error sign out:", error);
     }
@@ -61,9 +63,10 @@ const AddSong = ({ allChordsData }: Props) => {
           )}
         </div>
       ) : (
-        <h2>You are not logged in </h2>
+        <div className="min-h-screen  bg-black bg-gradient-to-br from-gray-700 via-black to-gray-800 ">
+          <p className="text-white text-5xl text-center pt-72">You must login to access this page </p>
+        </div>
       )}
-      <button className="text-3xl bg-cyan-500" onClick={handleLogout}>SIGN OUT</button>
     </>
   );
 };

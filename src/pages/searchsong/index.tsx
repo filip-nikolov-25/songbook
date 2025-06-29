@@ -35,7 +35,7 @@ const Searchsong = () => {
   });
 
   return (
-    <div className="bg-black">
+    <div className="bg-black min-h-screen">
       <div className="flex w-[98%] m-auto">
         <div className="w-1/6 border-r-2 bg-gradient-to-r from-black to-red-900  border-red-300 p-5 border-l-2  rounded-l-3xl rounded-r-[80%]">
           {allSongs?.map((song) => (

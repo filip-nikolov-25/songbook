@@ -23,12 +23,15 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 auth.languageCode = "en";
 
-export async function signInWithGoogle(): Promise<UserCredential | void> {
+export async function signInWithGoogle(): Promise<
+  import("firebase/auth").User | null
+> {
   try {
     const result = await signInWithPopup(auth, provider);
-    return result;
+    return result.user; 
   } catch (error) {
     console.error("sign-in failed:", error);
+    return null; 
   }
 }
 

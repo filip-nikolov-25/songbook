@@ -1,11 +1,11 @@
 import React from "react";
-import Header from "@/components/HomePage/Home";
+import Home from "@/components/HomePage/Home";
 import { GetStaticProps } from "next";
 
 const Homepage = () => {
   return (
     <>
-      <Header />
+      <Home />
     </>
   );
 };
