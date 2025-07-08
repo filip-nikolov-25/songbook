@@ -5,8 +5,6 @@ import { GetStaticProps } from "next";
 import { useState } from "react";
 import { auth } from "@/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { signOut } from "firebase/auth";
-
 
 interface Props {
   allChordsData: AllChords;
@@ -16,9 +14,7 @@ const AddSong = ({ allChordsData }: Props) => {
   const [chooseKey, setChooseKey] = useState<string>("");
   const [text, setText] = useState("");
   const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] = useState(false);
-  // const user = auth.currentUser;
   const [user,loading] = useAuthState(auth)
-
 
   if(loading) {
     <h1>LOADING LOADING</h1>
@@ -27,18 +23,6 @@ const AddSong = ({ allChordsData }: Props) => {
   if(!user) {
     <h1>USER NOT FOUND</h1>
   }
-  
-
-   const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      console.log("User signed out successfully");
-      localStorage.removeItem("modalOpenCounter")
-      localStorage.setItem("user","true")
-    } catch (error) {
-      console.error("Error sign out:", error);
-    }
-  };
 
   return (
     <>

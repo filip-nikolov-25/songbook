@@ -1,4 +1,4 @@
-import SignInWIthGoogleButton from "@/components/SignInWIthGoogleButton";
+import SignInWIthGoogleButton from "@/components/auth/SignInWIthGoogleButton";
 import { DefaultUserContext } from "@/context/loggedInUserContext";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";

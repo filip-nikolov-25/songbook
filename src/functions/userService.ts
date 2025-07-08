@@ -8,15 +8,22 @@ export const createSong = async (
   songData: { text: string; chord: string }[]
 ) => {
   try {
-    await set(ref(database, "songs/" + songName), songData);
+    const formattedText = songData
+      .map(({ chord, text }) => {
+        return chord ? `[${chord}]${text}` : text;
+      })
+      .join("\n");
+
+    await set(ref(database, "songs/" + songName), { text: formattedText });
+    
   } catch (error) {
-    console.error("Error saving song data:", error);
+    console.error("Error saving the song :", error);
   }
 };
 
 export const getSong = async (songName: string) => {
   try {
-    const snapshot = await get(ref(database, "songs/" + songName));
+    const snapshot = await get(ref(database, `songs/${songName}`));
     if (snapshot.exists()) {
       return snapshot.val();
     } else {
@@ -50,7 +57,7 @@ export const getAllSongs = async (): Promise<string[]> => {
   }
 };
 
-export const saveUser = async (user) => { 
+export const saveUser = async (user:any) => { 
   try {
         await set(ref(database, "users/user/"),user );
   } catch (error) {

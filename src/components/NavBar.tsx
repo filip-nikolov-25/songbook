@@ -93,11 +93,9 @@ const NavBar = () => {
               {currentUser && (
                 <li
                 onClick={handleLogout}
-                  className={`mr-5 mt-1 rounded-b-xl hover:text-white border-b-2 px-5 py-1 cursor-pointer ${
-                    router.asPath === "/allsongs"
-                      ? "shadow-white text-white"
-                      : "shadow-slate-600"
-                  } hover:text-red-500 shadow-xl backdrop-blur-md backdrop-brightness-75`}
+                  className={`mr-5 mt-1 rounded-b-xl shadow-xl  shadow-red-500 border-b-2 px-5 py-1 cursor-pointer
+0"
+                   hover:text-red-500 border-red-500  backdrop-blur-md backdrop-brightness-75`}
                 >
                   Sign out
                 </li>

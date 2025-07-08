@@ -106,29 +106,6 @@ const Searchsong = () => {
         </div>
       </div>
 
-      {/* {clickedSong.length > 0 && (
-        <div className="w-1/2 mx-auto border-l-white border-x-2 border-b-2 rounded-lg py-10">
-          <div className="flex flex-wrap gap-y-5 px-4">
-            {fetchOneSong && fetchOneSong.length > 0 ? (
-              fetchOneSong.map((entry, index) => (
-                <div
-                  className="flex flex-col items-start min-w-[64px] text-left"
-                  key={index}
-                >
-                  <span className="text-yellow-300 text-sm mb-1">
-                    {entry.chord}
-                  </span>
-                  <span className="text-white mr-3 text-lg whitespace-nowrap">
-                    {entry.text}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="text-red-500">FOUND SONG</p>
-            )}
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };
