@@ -4,27 +4,43 @@ interface Props {
   children: React.ReactNode;
 }
 
+interface SelectSongType {
+  selectedSong?: string | undefined;
+  genre?: string | undefined;
+  language?: string | undefined;
+}
 interface ContextData {
-  selectedSong: string;
-  selectSong: (songName: string) => void;
+  selectedSong: SelectSongType;
+  selectSong: (songName: string, genre: string, language: string) => void;
 }
 
 export const SelectedSongContext = createContext({} as ContextData);
 
 const SelectedSongProvider = ({ children }: Props) => {
-  const [selectedSong, setSelectedSong] = useState("");
+  const [selectedSong, setSelectedSong] = useState<SelectSongType>({
+    selectedSong: "",
+    genre: "",
+    language: "",
+  });
 
-  const selectSong = (songName: string) => {
-    setSelectedSong(songName);
+
+  const selectSong = (songName: string, genre: string, language: string) => {
+    setSelectedSong({
+      genre: genre,
+      selectedSong: songName,
+      language: language,
+    });
   };
 
- return <SelectedSongContext.Provider
-    value={{
-      selectedSong,
-      selectSong,
-    }}
-  >
-    {children}
-  </SelectedSongContext.Provider>;
+  return (
+    <SelectedSongContext.Provider
+      value={{
+        selectedSong,
+        selectSong,
+      }}
+    >
+      {children}
+    </SelectedSongContext.Provider>
+  );
 };
-export default SelectedSongProvider
+export default SelectedSongProvider;

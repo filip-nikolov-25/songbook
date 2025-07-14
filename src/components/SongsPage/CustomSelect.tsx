@@ -1,13 +1,12 @@
-interface Props{
-   selected:string
-   setSelected:(filterTerm:string) => void
-   options:string[]
+interface Props {
+  selected: string;
+  setSelected: (filterTerm: string) => void;
+  options: string[];
 }
-const CustomSelect = ({selected,setSelected,options}:Props) => {
-
+const CustomSelect = ({ selected, setSelected, options }: Props) => {
   return (
     <div className="relative inline-block w-48 mt-5 group">
-      <div className="w-full bg-gradient-to-r from-red-500 via-red-700 to-red-900 text-white font-semibold py-2 px-4 rounded-xl shadow-md group-hover:shadow-lg transition duration-300">
+      <div className="w-full bg-gradient-to-r from-red-950 via-red-400 to-red-950 text-white font-semibold py-2 px-4 rounded-xl shadow-md group-hover:shadow-lg transition duration-300">
         {selected}
       </div>
 

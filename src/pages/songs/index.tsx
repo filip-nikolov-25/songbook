@@ -1,7 +1,8 @@
 import CustomSelect from "@/components/SongsPage/CustomSelect";
 import ViewSongsComponent from "@/components/SongsPage/ViewSongsComponent";
-import { getAllSongs } from "@/functions/userService";
-import React, { useEffect, useState } from "react";
+import { SelectedSongContext } from "@/context/clickedSongContext";
+import { getAllSongsByGenre } from "@/functions/userService";
+import React, { useContext, useEffect, useState } from "react";
 
 const ViewSongs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -9,8 +10,10 @@ const ViewSongs = () => {
   const [allSongs, setAllSongs] = useState<string[]>([]);
   const [showMore, setShowMore] = useState(10);
   const [selected, setSelected] = useState("Sort by");
+  const { selectSong, selectedSong } = useContext(SelectedSongContext);
 
   const options = ["A-Z", "Z-A"];
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebounced(searchTerm);
@@ -21,23 +24,35 @@ const ViewSongs = () => {
 
   useEffect(() => {
     const fetchSongs = async () => {
-      const songs = await getAllSongs();
+      if (!selectedSong.genre || !selectedSong.language) {
+        setAllSongs([]);
+        return;
+      }
+      const songs = await getAllSongsByGenre(
+        selectedSong.genre,
+        selectedSong.language
+      );
       setAllSongs(songs);
     };
     fetchSongs();
-  }, []);
+  }, [selectedSong]);
 
   const filteredSongs = allSongs
     .filter((song) => song.toLowerCase().includes(debounced.toLowerCase()))
     .sort((a, b) => {
-      if (selected === "A-Z") {
-        return a.localeCompare(b);
-      }
-      if (selected === "Z-A") {
-        return b.localeCompare(a);
-      }
+      if (selected === "A-Z") return a.localeCompare(b);
+      if (selected === "Z-A") return b.localeCompare(a);
       return 0;
     });
+
+  const showNoSongsMessage =
+    filteredSongs.length === 0 &&
+    (debounced.length > 0 || allSongs.length === 0);
+
+  const getNoSongsMessage = () => {
+    if (debounced.length > 0) return "No songs found";
+    return "No songs found in this genre";
+  };
 
   return (
     <div className="bg-black min-h-screen">
@@ -59,22 +74,31 @@ const ViewSongs = () => {
             </div>
 
             <div className="min-h-screen">
-              {debounced.length > 0 && filteredSongs.length === 0 ? (
-                <div className="text-white text-center mt-10 text-2xl">
-                  No songs found
+              {showNoSongsMessage ? (
+                <div className="text-white text-center mt-10 text-3xl">
+                  {getNoSongsMessage()}
                 </div>
               ) : (
                 <div className="grid grid-cols-5 gap-5 text-center mt-10">
                   {filteredSongs.slice(0, showMore).map((song) => (
-                    <ViewSongsComponent key={song} text={song} />
+                    <ViewSongsComponent
+                      onClick={() =>
+                        selectSong(
+                          song,
+                          selectedSong.genre || "",
+                          selectedSong.language || ""
+                        )
+                      }
+                      key={song}
+                      text={song}
+                    />
                   ))}
                 </div>
               )}
             </div>
           </div>
 
-          {debounced.length === 0 ||
-          (filteredSongs && showMore < filteredSongs.length) ? (
+          {filteredSongs.length > 0 && showMore < filteredSongs.length && (
             <div className="flex justify-center mt-8">
               <button
                 onClick={() => setShowMore((prev) => prev + 5)}
@@ -83,7 +107,7 @@ const ViewSongs = () => {
                 Show more
               </button>
             </div>
-          ) : null}
+          )}
         </div>
       </div>
     </div>

@@ -21,3 +21,17 @@ export interface SongType {
   name: string;
   text: string;
 }
+
+export interface MusicStyleType {
+  genre?: string;
+  language?: string;
+}
+export interface SongDB {
+  [genre: string]: {
+    [language: string]: {
+      [songName: string]: {
+        text: string;
+      };
+    };
+  };
+}

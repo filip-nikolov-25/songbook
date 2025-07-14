@@ -52,17 +52,7 @@ const NavBar = () => {
                   All Songs
                 </li>
               </Link>
-              <Link href={"/searchsong"}>
-                <li
-                  className={`mr-5 mt-1 border-b-2 hover:text-white border-white rounded-b-xl px-5 py-1 cursor-pointer ${
-                    router.asPath === "/searchsong"
-                      ? "shadow-white text-white"
-                      : "shadow-slate-600"
-                  } hover:shadow-white shadow-xl backdrop-blur-md backdrop-brightness-75`}
-                >
-                  Search Songs
-                </li>
-              </Link>
+             
               {
                 (!currentUser && (
                   <Link href={"/signin"}>

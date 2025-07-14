@@ -1,4 +1,4 @@
-import SignInWIthGoogleButton from "@/components/auth/SignInWIthGoogleButton";
+import SignInWIthGoogleButton from "@/auth/SignInWIthGoogleButton";
 import { DefaultUserContext } from "@/context/loggedInUserContext";
 import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
@@ -26,7 +26,7 @@ const SignIn = () => {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-       router.push("/allsongs");
+    router.push("/allsongs");
   };
 
   useEffect(() => {
@@ -81,7 +81,10 @@ const SignIn = () => {
             >
               Close
             </button>
-            <p>Redirecting in <span className="text-red-500 font-bold">{redirectPage}</span></p>
+            <p>
+              Redirecting in{" "}
+              <span className="text-red-500 font-bold">{redirectPage}</span>
+            </p>
           </div>
         </>
       )}

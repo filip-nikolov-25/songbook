@@ -23,7 +23,7 @@ const Home = () => {
         </h3>
 
         <div className="mt-6">
-          <Link href="/searchsong">
+          <Link href="/allsongs">
             <button
               className="border-b-2 border-white rounded-b-xl px-4 py-3 sm:px-6 sm:py-4 text-sm sm:text-base shadow-white shadow-2xl hover:shadow-slate-100 transition"
             >

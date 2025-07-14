@@ -10,18 +10,20 @@ interface Props {
   allChordsData: AllChords;
 }
 
+
 const AddSong = ({ allChordsData }: Props) => {
   const [chooseKey, setChooseKey] = useState<string>("");
   const [text, setText] = useState("");
   const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] = useState(false);
-  const [user,loading] = useAuthState(auth)
+  const [user, loading] = useAuthState(auth);
 
-  if(loading) {
-    <h1>LOADING LOADING</h1>
+
+  if (loading) {
+    <h1>LOADING LOADING</h1>;
   }
 
-  if(!user) {
-    <h1>USER NOT FOUND</h1>
+  if (!user) {
+    <h1>USER NOT FOUND</h1>;
   }
 
   return (
@@ -48,7 +50,9 @@ const AddSong = ({ allChordsData }: Props) => {
         </div>
       ) : (
         <div className="min-h-screen  bg-black bg-gradient-to-br from-gray-700 via-black to-gray-800 ">
-          <p className="text-white text-5xl text-center pt-72">You must login to access this page </p>
+          <p className="text-white text-5xl text-center pt-72">
+            You must login to access this page{" "}
+          </p>
         </div>
       )}
     </>

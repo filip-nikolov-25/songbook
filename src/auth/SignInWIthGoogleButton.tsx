@@ -22,10 +22,11 @@ const SignInWIthGoogleButton = ({
       console.log(result, "USER FROM BUTTON");
     }
   };
+
   return (
     <button
       onClick={handleSignIn}
-      className="rounded hover:shadow-xl bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+      className="rounded px-5 py-2 text-white font-semibold bg-gradient-to-b from-red-500 to-red-700 shadow-2xl shadow-red-500 transition-all duration-300 ease-in transform hover:scale-105"
     >
       {buttonText}
     </button>

@@ -1,11 +1,12 @@
 import { database } from "@/firebase";
-import { AllChords, SongType } from "@/types/types";
+import {  SongDB } from "@/types/types";
 import { get, ref, set } from "firebase/database";
-import { use } from "react";
 
 export const createSong = async (
   songName: string,
-  songData: { text: string; chord: string }[]
+  songData: { text: string; chord: string }[],
+  genre: string,
+  language: string
 ) => {
   try {
     const formattedText = songData
@@ -14,16 +15,25 @@ export const createSong = async (
       })
       .join("\n");
 
-    await set(ref(database, "songs/" + songName), { text: formattedText });
-    
+    await set(ref(database, `songs/${genre}/${language}/` + songName), {
+      text: formattedText,
+    });
   } catch (error) {
     console.error("Error saving the song :", error);
   }
 };
 
-export const getSong = async (songName: string) => {
+export const getSong = async (
+  songName: string | undefined,
+  genre: string | undefined,
+  language: string | undefined
+) => {
   try {
-    const snapshot = await get(ref(database, `songs/${songName}`));
+    if (!songName || !genre || !language) return null;
+
+    const snapshot = await get(
+      ref(database, `songs/${genre}/${language}/${songName}`)
+    );
     if (snapshot.exists()) {
       return snapshot.val();
     } else {
@@ -34,33 +44,45 @@ export const getSong = async (songName: string) => {
   }
 };
 
-export const setChords = async (allChords: AllChords) => {
-  try {
-    await set(ref(database, "allChords"), allChords);
-  } catch (error) {
-    console.error("Error happened:", error);
-  }
-};
-
 export const getAllSongs = async (): Promise<string[]> => {
   try {
     const snapshot = await get(ref(database, "songs"));
-    if (snapshot.exists()) {
-      const songsObject = snapshot.val();
-      return Object.keys(songsObject);
-    } else {
-      return [];
-    }
+    if (!snapshot.exists()) return [];
+
+    const songsObject = snapshot.val() as SongDB;
+
+    const allTitles = Object.entries(songsObject).flatMap(([_, languages]) =>
+      Object.entries(languages).flatMap(([__, songs]) => Object.keys(songs))
+    );
+
+    return [...new Set(allTitles)];
   } catch (error) {
-    console.error("Error fetching song data:", error);
+    console.error("Error fetching songs:", error);
+    return [];
+  }
+};
+export const getAllSongsByGenre = async (
+  genre: string | undefined,
+  language: string | undefined
+): Promise<string[]> => {
+  try {
+    if (!genre || !language) return [];
+
+    const snapshot = await get(ref(database, `songs/${genre}/${language}`));
+    if (!snapshot.exists()) return [];
+
+    const songsObject = snapshot.val(); 
+
+    return Object.keys(songsObject);
+  } catch (error) {
+    console.error("Error fetching songs:", error);
     return [];
   }
 };
 
-export const saveUser = async (user:any) => { 
+
+export const saveUser = async (user: any) => {
   try {
-        await set(ref(database, "users/user/"),user );
-  } catch (error) {
-    
-  }
-}
+    await set(ref(database, "users/user/"), user);
+  } catch (error) {}
+};
