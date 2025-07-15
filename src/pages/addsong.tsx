@@ -5,6 +5,8 @@ import { GetStaticProps } from "next";
 import { useState } from "react";
 import { auth } from "@/firebase";
 import { useAuthState } from "react-firebase-hooks/auth";
+import Loading from "@/components/base/Loading";
+import NoUserComponent from "@/components/base/NoUserComponent";
 
 interface Props {
   allChordsData: AllChords;
@@ -17,13 +19,12 @@ const AddSong = ({ allChordsData }: Props) => {
   const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] = useState(false);
   const [user, loading] = useAuthState(auth);
 
-
   if (loading) {
-    <h1>LOADING LOADING</h1>;
+    return <Loading />;
   }
 
   if (!user) {
-    <h1>USER NOT FOUND</h1>;
+    return <NoUserComponent />;
   }
 
   return (
