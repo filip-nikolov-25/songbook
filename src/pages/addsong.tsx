@@ -1,17 +1,17 @@
+import { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { GetStaticProps } from "next";
+
 import ChooseKeyPopUp from "@/components/AddSongPage/ChooseKeyPopUp";
 import CreateSong from "@/components/AddSongPage/CreateSong";
-import { AllChords } from "@/types/types";
-import { GetStaticProps } from "next";
-import { useState } from "react";
-import { auth } from "@/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 import Loading from "@/components/base/Loading";
 import NoUserComponent from "@/components/base/NoUserComponent";
+import { auth } from "@/firebase";
+import { AllChords } from "@/types/types";
 
 interface Props {
   allChordsData: AllChords;
 }
-
 
 const AddSong = ({ allChordsData }: Props) => {
   const [chooseKey, setChooseKey] = useState<string>("");
@@ -19,44 +19,43 @@ const AddSong = ({ allChordsData }: Props) => {
   const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] = useState(false);
   const [user, loading] = useAuthState(auth);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (!user) {
-    return <NoUserComponent />;
-  }
+  if (loading) return <Loading />;
+  if (!user) return <NoUserComponent />;
 
   return (
-    <>
-      {user ? (
-        <div className="bg-gradient-to-r min-h-screen from-[#751006] to-[#1f0021]">
+    <main className="min-h-screen bg-[#0f0f12] py-10 px-4">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-white mb-2">Create New Song</h1>
+          <p className="text-gray-400">Compose and manage your chords</p>
+        </div>
+
+        <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md shadow-2xl">
           <CreateSong
             setText={setText}
             allChordsData={allChordsData}
             keyOfASong={chooseKey}
             text={text}
           />
-          <div className="text-center mb-10">
-            <button
-              onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)}
-              className="text-red-500  bg-black px-5 py-2  rounded-2xl"
-            >
-              Transpose your song
-            </button>
-          </div>
-          {isChooseKeyPopUpOpen && (
+        </div>
+
+        <div className="flex justify-center">
+          <button
+            onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)}
+            className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full hover:bg-red-500 hover:text-white transition-all duration-300 shadow-lg hover:shadow-red-500/20"
+          >
+            {isChooseKeyPopUpOpen ? "Close Transposer" : "Transpose your song"}
+          </button>
+        </div>
+
+        {isChooseKeyPopUpOpen && (
+          <div className="animate-in fade-in zoom-in duration-200">
             <ChooseKeyPopUp setChooseKey={setChooseKey} />
-          )}
-        </div>
-      ) : (
-        <div className="min-h-screen  bg-black bg-gradient-to-br from-gray-700 via-black to-gray-800 ">
-          <p className="text-white text-5xl text-center pt-72">
-            You must login to access this page{" "}
-          </p>
-        </div>
-      )}
-    </>
+          </div>
+        )}
+      </div>
+    </main>
   );
 };
 
@@ -66,9 +65,5 @@ export const getStaticProps: GetStaticProps = async () => {
   const chordRes = await fetch("http://localhost:5000/allChords");
   const allChordsData = await chordRes.json();
 
-  return {
-    props: {
-      allChordsData,
-    },
-  };
+  return { props: { allChordsData } };
 };
