@@ -1,42 +1,31 @@
+import Icon from "@/components/base/Icon";
+import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 
 export default function Custom404() {
-  const [counter, setCounter] = useState(5);
-  const router = useRouter();
-  useEffect(() => {
-    if (counter === 0) {
-      router.push("/");
-    }
-    const interval = setInterval(() => {
-      setCounter((prevState) => prevState - 1);
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [counter]);
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
-      <h1 className="text-7xl font-bold bg-gradient-to-r from-red-500 via-red-100 to-red-800 text-transparent bg-clip-text animate-fade-in">
+    <div className="flex min-h-[70vh] flex-col items-center justify-center px-4 text-center animate-fade-up">
+      <Head>
+        <title>Page not found · Songbook</title>
+      </Head>
+      <p className="bg-gradient-to-br from-orange-400 to-amber-500 bg-clip-text text-8xl font-bold tracking-tight text-transparent sm:text-9xl">
         404
+      </p>
+      <h1 className="mt-4 text-2xl font-bold sm:text-3xl">
+        This page is out of tune
       </h1>
-      <p className="mt-4 text-2xl md:text-3xl text-center">
-        Oops! This page does not exist.
+      <p className="mt-2 max-w-md text-stone-500">
+        The page you&apos;re looking for doesn&apos;t exist or was moved.
       </p>
-      <p className="text-gray-400 mt-2 text-center">
-        The page you're looking for might have been removed or is temporarily
-        unavailable.
-      </p>
-      <Link
-        href="/"
-        className="mt-6 px-6 py-2 rounded-full bg-red-600 hover:bg-red-700 text-white transition duration-300"
-      >
-        Go Home
-      </Link>
-    <p className="mt-4 text-lg underline-offset-8 underline text-gray-500">
-        Redirecting in <span className="text-red-400 font-semibold">{counter}</span>...
-      </p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <Link href="/" className="btn-primary">
+          <Icon name="arrowLeft" className="h-4 w-4" />
+          Go home
+        </Link>
+        <Link href="/allsongs" className="btn-secondary">
+          Browse songs
+        </Link>
+      </div>
     </div>
   );
 }

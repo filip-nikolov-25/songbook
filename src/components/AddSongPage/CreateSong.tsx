@@ -1,236 +1,318 @@
-import { createSong } from "@/functions/userService";
-import { AllChords, MusicStyleType } from "@/types/types";
-import React, { useEffect, useState } from "react";
+import Icon from "@/components/base/Icon";
+import SongSheet from "@/components/SongSheet";
+import { GENRES, KEYS, LANGUAGES, SECTIONS } from "@/constants/songOptions";
+import { parseSong, uniqueChords } from "@/functions/chords";
+import {
+  createSong,
+  songPath,
+  SongInput,
+  updateSong,
+} from "@/functions/userService";
+import { SongRecord } from "@/types/types";
+import { useRouter } from "next/router";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+
+const DRAFT_KEY = "songbook:draft";
 
 interface Props {
-  allChordsData: AllChords;
-  keyOfASong: string;
-  text: string;
-  setText: (text: string) => void;
+  author: { name: string; uid: string };
+  editing?: {
+    original: { genre: string; language: string; name: string };
+    record: SongRecord;
+  };
 }
 
-const CreateSong = ({ allChordsData, keyOfASong, text, setText }: Props) => {
-  const [allChords, setAllChords] = useState<string[]>([]);
-  const [verseData, setVerseData] = useState<{ text: string; chord: string }[]>(
-    []
+const EMPTY: SongInput = { name: "", artist: "", genre: "", language: "", text: "" };
+
+const CreateSong = ({ author, editing }: Props) => {
+  const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [song, setSong] = useState<SongInput>(
+    editing
+      ? {
+          name: editing.original.name,
+          artist: editing.record.artist || "",
+          genre: editing.original.genre,
+          language: editing.original.language,
+          text: editing.record.text,
+        }
+      : EMPTY
   );
-  const [nameOfTheSong, setNameOfTheSong] = useState<string>("");
-  const [musicStyle, setMusicStyle] = useState<MusicStyleType>({
-    genre: "",
-    language: "",
-  });
+  const [keyIndex, setKeyIndex] = useState(0);
+  const [customChord, setCustomChord] = useState("");
+  const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  const update = (changes: Partial<SongInput>) =>
+    setSong((current) => ({ ...current, ...changes }));
 
   useEffect(() => {
-    if (allChordsData) {
-      const chords =
-        //@ts-expect-error element implicitly has an "any" type because expression of type string can't be used to index type "AllChords"
-        allChordsData[keyOfASong]?.chordScale ||
-        allChordsData.cMajorORaMinor.chordScale;
-      setAllChords(chords);
-    }
-  }, [allChordsData, keyOfASong]);
+    if (editing) return;
+    try {
+      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (draft && (draft.text || draft.name)) {
+        setSong({ ...EMPTY, ...draft });
+        setDraftRestored(true);
+      }
+    } catch {}
+  }, [editing]);
 
-  const handleAddChord = (text: string, chord: string) => {
-    if (text && chord) {
-      setVerseData((prevState) => [...prevState, { text, chord }]);
-      setText("");
-    } else if (text) {
-      setVerseData((prevState) => [...prevState, { text, chord: "" }]);
-      setText("");
-    } else if (chord) {
-      setVerseData((prevState) => [...prevState, { text: "", chord }]);
-    } else {
-      alert("Please enter text or chord for the verse.");
-    }
+  useEffect(() => {
+    if (editing) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(song));
+    } catch {}
+  }, [song, editing]);
+
+  const previewLines = useMemo(() => parseSong(song.text), [song.text]);
+  const chordCount = useMemo(() => uniqueChords(previewLines).length, [previewLines]);
+
+  const insertAtCursor = (snippet: string) => {
+    const textarea = textareaRef.current;
+    const start = textarea ? textarea.selectionStart : song.text.length;
+    const end = textarea ? textarea.selectionEnd : song.text.length;
+    update({ text: song.text.slice(0, start) + snippet + song.text.slice(end) });
+
+    requestAnimationFrame(() => {
+      if (!textarea) return;
+      const position = start + snippet.length;
+      textarea.focus();
+      textarea.setSelectionRange(position, position);
+    });
   };
-  const baseClass = `w-14 h-14 rounded-full flex justify-center items-center p-2 m-2 cursor-pointer backdrop-blur-md bg-black/40 shadow-lg text-white hover:text-white hover:shadow-white`;
+
+  const insertSection = (section: string) => {
+    const start = textareaRef.current?.selectionStart ?? song.text.length;
+    const needsNewLine = start > 0 && song.text[start - 1] !== "\n";
+    insertAtCursor(`${needsNewLine ? "\n" : ""}${section}:\n`);
+  };
+
+  const insertCustomChord = () => {
+    const chord = customChord.trim().replace(/[\[\]]/g, "");
+    if (!chord) return;
+    insertAtCursor(`[${chord}]`);
+    setCustomChord("");
+  };
+
+  const clearDraft = () => {
+    setSong(EMPTY);
+    setDraftRestored(false);
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {}
+  };
+
+  const handleSubmit = async () => {
+    const missing = [
+      !song.name.trim() && "song name",
+      !song.genre && "genre",
+      !song.language && "language",
+      !song.text.trim() && "lyrics and chords",
+    ].filter(Boolean);
+
+    if (missing.length > 0) {
+      setError(`Please add the ${missing.join(", ")}.`);
+      return;
+    }
+
+    setError("");
+    setIsSaving(true);
+    const result = editing
+      ? await updateSong(editing.original, song, editing.record)
+      : await createSong(song, author);
+    setIsSaving(false);
+
+    if ("error" in result) {
+      setError(result.error);
+      return;
+    }
+    if (!editing) {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {}
+    }
+    router.push(songPath(song.genre, song.language, result.key));
+  };
 
   return (
-    <div className="w-11/12  pt-20 m-auto">
-      <div className="flex">
-        <div className="w-1/2 mr-10 ">
-          <input
-            type="text"
-            placeholder="Enter name of the song"
-            className="bg-black text-white rounded-md mb-5 p-2 w-full"
-            onChange={(e) => setNameOfTheSong(e.target.value)}
-          />
-          <textarea
-            name="textarea"
-            value={text}
-            placeholder="Enter the text for the song"
-            onChange={(e) => {
-              setText(e.target.value);
-            }}
-            className="p-2 resize-none focus:outline-none rounded-tl-full text-white pl-36 rounded-br-full w-full border-2 bg-black h-44 mt-4"
-          ></textarea>
+    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight">
+            {editing ? "Edit song" : "Add a song"}
+          </h1>
+          <p className="mt-2 text-stone-500">
+            Type the lyrics, put your cursor where a chord changes and click
+            the chord.
+          </p>
+        </div>
+        {draftRestored && (
+          <p className="flex items-center gap-3 rounded-full bg-orange-50 px-4 py-2 text-sm text-orange-700">
+            Your draft was restored
+            <button onClick={clearDraft} className="font-semibold underline">
+              Start over
+            </button>
+          </p>
+        )}
+      </div>
+
+      <div className="mt-10 grid gap-8 lg:grid-cols-2">
+        <div className="space-y-6">
+          <section className="card p-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label>
+                <span className="label">Song name</span>
+                <input
+                  value={song.name}
+                  placeholder="e.g. Wonderwall"
+                  className="input"
+                  onChange={(e) => update({ name: e.target.value })}
+                />
+              </label>
+              <label>
+                <span className="label">Artist</span>
+                <input
+                  value={song.artist}
+                  placeholder="e.g. Oasis"
+                  className="input"
+                  onChange={(e) => update({ artist: e.target.value })}
+                />
+              </label>
+            </div>
+
+            <span className="label mt-6">Genre</span>
+            <div className="flex flex-wrap gap-2">
+              {GENRES.map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => update({ genre: item.value })}
+                  className={`chip ${song.genre === item.value ? "chip-on" : "chip-off"}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <span className="label mt-6">Language</span>
+            <div className="flex flex-wrap gap-2">
+              {LANGUAGES.map((item) => (
+                <button
+                  key={item.value}
+                  onClick={() => update({ language: item.value })}
+                  className={`chip ${song.language === item.value ? "chip-on" : "chip-off"}`}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <section className="card p-6">
+            <div className="flex items-center justify-between gap-4">
+              <span className="label !mb-0">Chords</span>
+              <select
+                value={keyIndex}
+                onChange={(e) => setKeyIndex(Number(e.target.value))}
+                className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium focus:border-orange-400 focus:outline-none"
+                aria-label="Key"
+              >
+                {KEYS.map((key, index) => (
+                  <option key={key.label} value={index}>
+                    Key: {key.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {KEYS[keyIndex].chords.map((chord) => (
+                <button
+                  key={chord}
+                  onClick={() => insertAtCursor(`[${chord}]`)}
+                  className="h-12 min-w-12 rounded-xl border border-orange-200 bg-orange-50 px-3 font-mono font-bold text-orange-700 transition hover:-translate-y-0.5 hover:bg-orange-500 hover:text-white hover:shadow-md hover:shadow-orange-500/30"
+                >
+                  {chord}
+                </button>
+              ))}
+              <div className="flex gap-2">
+                <input
+                  value={customChord}
+                  placeholder="Other: Asus4"
+                  className="input !w-36 !py-2.5 font-mono"
+                  onChange={(e) => setCustomChord(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && insertCustomChord()}
+                />
+                <button onClick={insertCustomChord} className="btn-secondary !px-4" aria-label="Insert chord">
+                  <Icon name="plus" className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            <span className="label mt-6">Sections</span>
+            <div className="flex flex-wrap gap-2">
+              {SECTIONS.map((section) => (
+                <button
+                  key={section}
+                  onClick={() => insertSection(section)}
+                  className="chip chip-off"
+                >
+                  + {section}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              ref={textareaRef}
+              value={song.text}
+              spellCheck={false}
+              placeholder={
+                "Type the lyrics here.\n\n" +
+                "You can also paste a song with chords written above the lyrics:\n\n" +
+                "Am           G\nFirst line of the song\nF            E\nSecond line of the song"
+              }
+              onChange={(e) => update({ text: e.target.value })}
+              className="input mt-6 h-[28rem] resize-y font-mono text-sm leading-relaxed"
+            />
+            <p className="mt-2 text-xs text-stone-400">
+              Tip: chords are saved as <code className="text-orange-600">[Am]</code> inside
+              the lyrics. Lines ending with <code className="text-orange-600">:</code>{" "}
+              (like <code>Chorus:</code>) become section labels.
+            </p>
+          </section>
         </div>
 
-        <div className="w-1/2 border-l-white border-x-2 border-b-2 rounded-lg py-10">
-          <div className="flex flex-wrap gap-y-5 px-4">
-            {verseData && verseData.length > 0 ? (
-              verseData.map((entry, index) => (
-                <div
-                  className="flex flex-col items-start min-w-[64px] text-left"
-                  key={index}
-                >
-                  <span className="text-yellow-300 text-sm mb-1">
-                    {entry.chord}
-                  </span>
-                  <span className="text-white mr-3 text-lg whitespace-nowrap">
-                    {entry.text}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <p className="text-red-500">
-                Add chord to see your latest added verse
-              </p>
-            )}
-          </div>
+        <div className="lg:sticky lg:top-24 self-start">
+          <section className="card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50 px-6 py-3">
+              <span className="label !mb-0">Live preview</span>
+              <span className="text-xs text-stone-400">{chordCount} chords</span>
+            </div>
+            <div className="max-h-[65vh] overflow-y-auto p-6">
+              <h2 className="text-2xl font-bold">{song.name || "Song name"}</h2>
+              <p className="mb-6 text-stone-500">{song.artist || "Artist"}</p>
+              <SongSheet lines={previewLines} fontSize={15} />
+            </div>
+            <div className="border-t border-stone-200 p-6">
+              {error && (
+                <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {error}
+                </p>
+              )}
+              <div className="flex gap-3">
+                <button onClick={handleSubmit} disabled={isSaving} className="btn-primary flex-1">
+                  <Icon name={editing ? "check" : "upload"} className="h-4 w-4" />
+                  {isSaving ? "Saving…" : editing ? "Save changes" : "Publish song"}
+                </button>
+                {editing && (
+                  <button onClick={() => router.back()} className="btn-secondary">
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
-      <div className="flex mt-20">
-        {allChords.map((chord, index) => {
-          if (index === 0) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 1) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 2) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 3) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 4) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 5) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-          if (index === 6) {
-            return (
-              <div
-                onClick={() => handleAddChord(text, chord)}
-                key={chord}
-                className={baseClass}
-              >
-                {chord}
-              </div>
-            );
-          }
-        })}
-      </div>
-      <div className="text-center mt-10 pb-20  w-1/2">
-        <h2>Choose the genre of the song</h2>
-        <div className="flex flex-col">
-          <button
-            className="bg-white mt-5"
-            onClick={() => setMusicStyle({...musicStyle, genre: "romanticballads" })}
-          >
-            Romantic Ballads
-          </button>
-          <button  onClick={() => setMusicStyle({...musicStyle, genre: "classicrock" })} className="bg-white mt-5 mb-5">Classic Rock</button>
-          <button  onClick={() => setMusicStyle({...musicStyle, genre: "folk" })} className="bg-white">Folk</button>
-          <button  onClick={() => setMusicStyle({...musicStyle, genre: "popballads" })} className="bg-white mt-5">Pop Ballads</button>
-        </div>
-        <h2>Choose the language of the song</h2>
-        <div className="flex flex-col">
-          <button
-            className="bg-white mt-5"
-            onClick={() => setMusicStyle({...musicStyle, language: "en" })}
-          >
-            English
-          </button>
-          <button
-            onClick={() => setMusicStyle({...musicStyle, language: "srb" })}
-            className="bg-white mt-5 mb-5"
-          >
-            Serbian
-          </button>
-          <button
-            onClick={() => setMusicStyle({...musicStyle, language: "mk" })}
-            className="bg-white"
-          >
-            Macedonian
-          </button>
-          <button
-            onClick={() => setMusicStyle({...musicStyle, language: "esp" })}
-            className="bg-white mt-5"
-          >
-            Spanish
-          </button>
-        </div>
-        <button
-          onClick={() => {
-            if (
-              verseData.length > 0 &&
-              nameOfTheSong &&
-              musicStyle.genre &&
-              musicStyle.language
-            ) {
-              createSong(
-                nameOfTheSong,
-                verseData,
-                musicStyle.genre,
-                musicStyle.language
-              );
-            }
-          }}
-          className="px-5 py-2  bg-black text-red-500 rounded-xl"
-        >
-          Submit your song
-        </button>
       </div>
     </div>
   );

@@ -1,74 +1,66 @@
-import ChooseKeyPopUp from "@/components/AddSongPage/ChooseKeyPopUp";
 import CreateSong from "@/components/AddSongPage/CreateSong";
-import { AllChords } from "@/types/types";
-import { GetStaticProps } from "next";
-import { useState } from "react";
-import { auth } from "@/firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
 import Loading from "@/components/base/Loading";
 import NoUserComponent from "@/components/base/NoUserComponent";
+import { DefaultUserContext } from "@/context/loggedInUserContext";
+import { getSong } from "@/functions/userService";
+import { SongRecord } from "@/types/types";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useContext, useEffect, useState } from "react";
 
-interface Props {
-  allChordsData: AllChords;
-}
+const AddSong = () => {
+  const router = useRouter();
+  const { currentUser, authLoading } = useContext(DefaultUserContext);
+  const { edit, genre, language, name } = router.query as Record<string, string>;
+  const isEditing = Boolean(edit && genre && language && name);
+  const [record, setRecord] = useState<SongRecord | null | undefined>(undefined);
 
+  useEffect(() => {
+    if (!router.isReady || !isEditing) return;
+    getSong(name, genre, language).then(setRecord);
+  }, [router.isReady, isEditing, name, genre, language]);
 
-const AddSong = ({ allChordsData }: Props) => {
-  const [chooseKey, setChooseKey] = useState<string>("");
-  const [text, setText] = useState("");
-  const [isChooseKeyPopUpOpen, setIsChooseKeyPopUpOpen] = useState(false);
-  const [user, loading] = useAuthState(auth);
-
-  if (loading) {
+  if (authLoading || !router.isReady || (isEditing && record === undefined)) {
     return <Loading />;
   }
 
-  if (!user) {
+  if (!currentUser) {
     return <NoUserComponent />;
+  }
+
+  if (isEditing && (!record || record.authorId !== currentUser.uid)) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-3xl font-bold">You can&apos;t edit this song</h1>
+        <p className="mt-2 text-stone-500">
+          Only the person who added a song can edit it.
+        </p>
+        <Link href="/allsongs" className="btn-primary mt-8">
+          Browse songs
+        </Link>
+      </div>
+    );
   }
 
   return (
     <>
-      {user ? (
-        <div className="bg-gradient-to-r min-h-screen from-[#751006] to-[#1f0021]">
-          <CreateSong
-            setText={setText}
-            allChordsData={allChordsData}
-            keyOfASong={chooseKey}
-            text={text}
-          />
-          <div className="text-center mb-10">
-            <button
-              onClick={() => setIsChooseKeyPopUpOpen(!isChooseKeyPopUpOpen)}
-              className="text-red-500  bg-black px-5 py-2  rounded-2xl"
-            >
-              Transpose your song
-            </button>
-          </div>
-          {isChooseKeyPopUpOpen && (
-            <ChooseKeyPopUp setChooseKey={setChooseKey} />
-          )}
-        </div>
-      ) : (
-        <div className="min-h-screen  bg-black bg-gradient-to-br from-gray-700 via-black to-gray-800 ">
-          <p className="text-white text-5xl text-center pt-72">
-            You must login to access this page{" "}
-          </p>
-        </div>
-      )}
+      <Head>
+        <title>{isEditing ? "Edit song" : "Add a song"} · Songbook</title>
+      </Head>
+      <CreateSong
+        author={{
+          name: currentUser.displayName || currentUser.email || "Anonymous",
+          uid: currentUser.uid,
+        }}
+        editing={
+          isEditing && record
+            ? { original: { genre, language, name }, record }
+            : undefined
+        }
+      />
     </>
   );
 };
 
 export default AddSong;
-
-export const getStaticProps: GetStaticProps = async () => {
-  const chordRes = await fetch("http://localhost:5000/allChords");
-  const allChordsData = await chordRes.json();
-
-  return {
-    props: {
-      allChordsData,
-    },
-  };
-};

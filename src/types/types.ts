@@ -1,37 +1,26 @@
-export interface ChordType {
-  id: number;
-  chordScale: string[];
-}
-
-export interface AllChords {
-  cMajorORaMinor: ChordType;
-  cSharpMajorORbMinor: ChordType;
-  dMajorORhMinor: ChordType;
-  dSharpMajorORcMinor: ChordType;
-  eMajorORcSharpMinor: ChordType;
-  fMajorORaMinor: ChordType;
-  fSharpMajorORdSharpMinor: ChordType;
-  gMajorORdeMinor: ChordType;
-  gSharpMajorORdFMinor: ChordType;
-  aMajorORfSharpMinor: ChordType;
-  bMajorORgMinor: ChordType;
-  hMajorORgSharpMinor: ChordType;
-}
-export interface SongType {
-  name: string;
+export interface SongRecord {
   text: string;
+  artist?: string;
+  author?: string;
+  authorId?: string;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
-export interface MusicStyleType {
-  genre?: string;
-  language?: string;
-}
 export interface SongDB {
   [genre: string]: {
     [language: string]: {
-      [songName: string]: {
-        text: string;
-      };
+      [songName: string]: SongRecord;
     };
   };
+}
+
+export interface SongSummary {
+  name: string;
+  artist: string;
+  genre: string;
+  language: string;
+  author?: string;
+  authorId?: string;
+  createdAt?: number;
 }

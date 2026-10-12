@@ -1,93 +1,102 @@
 import SignInWIthGoogleButton from "@/auth/SignInWIthGoogleButton";
+import Icon from "@/components/base/Icon";
+import Loading from "@/components/base/Loading";
 import { DefaultUserContext } from "@/context/loggedInUserContext";
+import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext } from "react";
+
+const PERKS = [
+  "Add songs with chords in minutes",
+  "Edit and manage the songs you share",
+  "Transpose, autoscroll and print any song",
+];
 
 const SignIn = () => {
-  const { currentUser } = useContext(DefaultUserContext);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [redirectPage, setRedirectPage] = useState(5);
+  const { currentUser, authLoading } = useContext(DefaultUserContext);
   const router = useRouter();
+  const next = typeof router.query.next === "string" && router.query.next.startsWith("/")
+    ? router.query.next
+    : "/library?tab=mine";
 
-  useEffect(() => {
-    if (localStorage.getItem("user")) {
-      setIsModalOpen(true);
-      return;
-    }
-    if (localStorage.getItem("newUser")) {
-      return;
-    }
-
-    if (currentUser) {
-      localStorage.setItem("newUser", "true");
-      setIsModalOpen(true);
-    }
-  }, [currentUser]);
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    router.push("/allsongs");
-  };
-
-  useEffect(() => {
-    if (isModalOpen ) {
-      const interval = setInterval(() => {
-        setRedirectPage((prev) => prev - 1);
-      }, 1000);
-
-      const timeout = setTimeout(() => {
-        router.push("/");
-      }, 3000);
-
-      return () => {
-        clearInterval(interval);
-        clearTimeout(timeout);
-      };
-    }
-  }, [isModalOpen]);
+  if (authLoading) return <Loading />;
 
   return (
-    <div className="py-28 relative bg-black bg-gradient-to-br from-gray-700 via-black to-gray-800 flex items-center justify-center">
-      <div className="w-8/12 p-10 py-56 rounded-2xl border border-white/50 bg-white/10 backdrop-blur-md shadow-2xl text-white">
-        <h2 className="font-bold text-5xl mb-10 text-center">
-          Your music belongs here
-        </h2>
-        <p className="text-2xl mb-14">
-          Join a passionate community of guitarists for free and share your
-          favorite songs with those who play together.
-        </p>
-        <div className="text-center text-red-400">
-          <SignInWIthGoogleButton buttonText="Join Us Now" />
-        </div>
-      </div>
-      {isModalOpen && currentUser && (
-        <>
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" />
-          <div className="fixed z-50 bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-10 top-[15%] w-11/12 max-w-2xl mx-auto text-center text-white shadow-2xl">
-            <p className="text-3xl mb-5 font-bold">Login successful!</p>
-            {localStorage.getItem("user") ? (
-              <p className="text-3xl mb-5 font-bold">Welcome Back</p>
-            ) : (
-              <p className="text-3xl mb-5">Welcome to the community</p>
+    <div className="mx-auto grid max-w-6xl items-center gap-12 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:py-20">
+      <Head>
+        <title>Sign in · Songbook</title>
+      </Head>
+      <div className="card mx-auto w-full max-w-md p-8 sm:p-10 animate-fade-up">
+        {currentUser ? (
+          <>
+            {currentUser.photoURL && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={currentUser.photoURL}
+                alt=""
+                referrerPolicy="no-referrer"
+                className="h-16 w-16 rounded-full ring-4 ring-orange-100"
+              />
             )}
-            <p className="text-5xl font-bold mb-6">{currentUser.displayName}</p>
-            <p className="mb-4">
-              You can now dive into the community and start adding your favorite
-              songs.
+            <h1 className="mt-6 text-3xl font-bold">
+              Welcome, {currentUser.displayName?.split(" ")[0] || "musician"}!
+            </h1>
+            <p className="mt-2 text-stone-500">You&apos;re signed in and ready to play.</p>
+            <div className="mt-8 grid gap-3">
+              <Link href="/addsong" className="btn-primary">
+                <Icon name="plus" className="h-4 w-4" />
+                Add a song
+              </Link>
+              <Link href="/allsongs" className="btn-secondary">
+                Browse songs
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/30">
+              <Icon name="music" className="h-6 w-6" />
+            </span>
+            <h1 className="mt-6 text-3xl font-bold">Your music belongs here</h1>
+            <p className="mt-2 text-stone-500">
+              Join a community of guitarists for free and share the songs you
+              love to play.
             </p>
-            <button
-              onClick={handleCloseModal}
-              className="mt-4 mb-5 px-6 py-2 bg-red-500 hover:bg-red-700 text-white rounded-lg shadow"
-            >
-              Close
-            </button>
-            <p>
-              Redirecting in{" "}
-              <span className="text-red-500 font-bold">{redirectPage}</span>
+            <ul className="mt-6 space-y-3">
+              {PERKS.map((perk) => (
+                <li key={perk} className="flex items-center gap-3 text-stone-700">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-orange-100 text-orange-600">
+                    <Icon name="check" className="h-3.5 w-3.5" />
+                  </span>
+                  {perk}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <SignInWIthGoogleButton onSignedIn={() => router.push(next)} />
+            </div>
+            <p className="mt-4 text-center text-xs text-stone-400">
+              We only use your name and photo to show who added a song.
             </p>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
+
+      <div className="relative hidden aspect-square overflow-hidden rounded-[2rem] shadow-2xl shadow-orange-900/20 lg:block">
+        <Image
+          src="/Images/ManPlayingAcousticGuitar.jpg"
+          alt="Man playing an acoustic guitar"
+          fill
+          sizes="560px"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-orange-900/60 via-transparent to-transparent" />
+        <p className="absolute bottom-8 left-8 right-8 text-2xl font-semibold text-white">
+          &ldquo;The best songbook is the one everyone can add to.&rdquo;
+        </p>
+      </div>
     </div>
   );
 };
