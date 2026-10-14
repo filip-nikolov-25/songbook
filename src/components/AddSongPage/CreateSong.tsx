@@ -24,10 +24,20 @@ interface Props {
 
 const EMPTY: SongInput = { name: "", artist: "", genre: "", language: "", text: "" };
 
+const readDraft = (): SongInput | null => {
+  try {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+    return draft && (draft.text || draft.name) ? { ...EMPTY, ...draft } : null;
+  } catch {
+    return null;
+  }
+};
+
 const CreateSong = ({ author, editing }: Props) => {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [song, setSong] = useState<SongInput>(
+  const [initialDraft] = useState(() => (editing ? null : readDraft()));
+  const [song, setSong] = useState<SongInput>(() =>
     editing
       ? {
           name: editing.original.name,
@@ -36,27 +46,16 @@ const CreateSong = ({ author, editing }: Props) => {
           language: editing.original.language,
           text: editing.record.text,
         }
-      : EMPTY
+      : initialDraft || EMPTY
   );
   const [keyIndex, setKeyIndex] = useState(0);
   const [customChord, setCustomChord] = useState("");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [draftRestored, setDraftRestored] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(Boolean(initialDraft));
 
   const update = (changes: Partial<SongInput>) =>
     setSong((current) => ({ ...current, ...changes }));
-
-  useEffect(() => {
-    if (editing) return;
-    try {
-      const draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-      if (draft && (draft.text || draft.name)) {
-        setSong({ ...EMPTY, ...draft });
-        setDraftRestored(true);
-      }
-    } catch {}
-  }, [editing]);
 
   useEffect(() => {
     if (editing) return;
@@ -210,11 +209,11 @@ const CreateSong = ({ author, editing }: Props) => {
 
           <section className="card p-6">
             <div className="flex items-center justify-between gap-4">
-              <span className="label !mb-0">Chords</span>
+              <span className="label mb-0!">Chords</span>
               <select
                 value={keyIndex}
                 onChange={(e) => setKeyIndex(Number(e.target.value))}
-                className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium focus:border-orange-400 focus:outline-none"
+                className="rounded-full border border-stone-200 bg-white px-3 py-1.5 text-sm font-medium focus:border-orange-400 focus:outline-hidden"
                 aria-label="Key"
               >
                 {KEYS.map((key, index) => (
@@ -239,11 +238,11 @@ const CreateSong = ({ author, editing }: Props) => {
                 <input
                   value={customChord}
                   placeholder="Other: Asus4"
-                  className="input !w-36 !py-2.5 font-mono"
+                  className="input w-36! py-2.5! font-mono"
                   onChange={(e) => setCustomChord(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && insertCustomChord()}
                 />
-                <button onClick={insertCustomChord} className="btn-secondary !px-4" aria-label="Insert chord">
+                <button onClick={insertCustomChord} className="btn-secondary px-4!" aria-label="Insert chord">
                   <Icon name="plus" className="h-4 w-4" />
                 </button>
               </div>
@@ -272,7 +271,7 @@ const CreateSong = ({ author, editing }: Props) => {
                 "Am           G\nFirst line of the song\nF            E\nSecond line of the song"
               }
               onChange={(e) => update({ text: e.target.value })}
-              className="input mt-6 h-[28rem] resize-y font-mono text-sm leading-relaxed"
+              className="input mt-6 h-112 resize-y font-mono text-sm leading-relaxed"
             />
             <p className="mt-2 text-xs text-stone-400">
               Tip: chords are saved as <code className="text-orange-600">[Am]</code> inside
@@ -285,7 +284,7 @@ const CreateSong = ({ author, editing }: Props) => {
         <div className="lg:sticky lg:top-24 self-start">
           <section className="card overflow-hidden">
             <div className="flex items-center justify-between border-b border-stone-200 bg-stone-50 px-6 py-3">
-              <span className="label !mb-0">Live preview</span>
+              <span className="label mb-0!">Live preview</span>
               <span className="text-xs text-stone-400">{chordCount} chords</span>
             </div>
             <div className="max-h-[65vh] overflow-y-auto p-6">

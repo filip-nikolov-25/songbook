@@ -22,7 +22,7 @@ const SongCard = ({ song }: { song: SongSummary }) => (
     className="group flex items-center gap-4 rounded-2xl border border-stone-200 bg-white p-3 pr-4 transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/10"
   >
     <span
-      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-lg font-bold text-white ${gradientFor(
+      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br text-lg font-bold text-white ${gradientFor(
         song.name
       )}`}
     >

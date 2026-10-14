@@ -14,7 +14,7 @@ const LINKS = [
 
 export const Logo = () => (
   <Link href="/" className="flex items-center gap-2.5 font-bold text-lg">
-    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/30">
+    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/30">
       <Icon name="music" className="h-5 w-5" />
     </span>
     Songbook
@@ -24,8 +24,9 @@ export const Logo = () => (
 const NavBar = () => {
   const router = useRouter();
   const { currentUser, authLoading } = useContext(DefaultUserContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isMenuOpen = menuOpenOn === router.asPath;
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 8);
@@ -33,8 +34,6 @@ const NavBar = () => {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  useEffect(() => setIsMenuOpen(false), [router.asPath]);
 
   const handleLogout = async () => {
     try {
@@ -69,7 +68,7 @@ const NavBar = () => {
       </button>
     </div>
   ) : (
-    <Link href="/signin" className="btn-primary !py-2">
+    <Link href="/signin" className="btn-primary py-2!">
       Sign in
     </Link>
   );
@@ -106,7 +105,7 @@ const NavBar = () => {
 
         <button
           className="icon-btn md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          onClick={() => setMenuOpenOn(isMenuOpen ? null : router.asPath)}
           aria-label="Menu"
         >
           <Icon name={isMenuOpen ? "close" : "menu"} className="h-5 w-5" />

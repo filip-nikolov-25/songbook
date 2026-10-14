@@ -27,8 +27,13 @@ const ViewOneSong = () => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState(2);
   const [showChords, setShowChords] = useState(true);
-  const [favorite, setFavorite] = useState(false);
+  const [favoriteState, setFavoriteState] = useState<{ uid: string; value: boolean } | null>(null);
   const [toast, setToast] = useState("");
+  const favorite = Boolean(
+    currentUser && favoriteState?.uid === currentUser.uid && favoriteState.value
+  );
+  const setFavorite = (value: boolean) =>
+    currentUser && setFavoriteState({ uid: currentUser.uid, value });
 
   const summary: SongSummary | null = useMemo(
     () =>
@@ -40,8 +45,6 @@ const ViewOneSong = () => {
 
   useEffect(() => {
     if (!router.isReady) return;
-    setSong(undefined);
-    setTranspose(0);
     getSong(name, genre, language).then(setSong);
   }, [router.isReady, name, genre, language]);
 
@@ -50,11 +53,11 @@ const ViewOneSong = () => {
   }, [summary]);
 
   useEffect(() => {
-    setFavorite(false);
     if (!summary || !currentUser) return;
+    const uid = currentUser.uid;
     let isCurrent = true;
-    isFavorite(currentUser.uid, summary).then(
-      (value) => isCurrent && setFavorite(value)
+    isFavorite(uid, summary).then(
+      (value) => isCurrent && setFavoriteState({ uid, value })
     );
     return () => {
       isCurrent = false;
@@ -163,7 +166,7 @@ const ViewOneSong = () => {
         <title>{`${name}${song.artist ? ` – ${song.artist}` : ""} · Songbook`}</title>
       </Head>
 
-      <section className="border-b border-stone-200 bg-gradient-to-b from-orange-50 to-white print:border-0 print:bg-none">
+      <section className="border-b border-stone-200 bg-linear-to-b from-orange-50 to-white print:border-0 print:bg-none">
         <div className="mx-auto max-w-6xl px-4 pt-8 pb-8 sm:px-6">
           <Link
             href={`/allsongs?genre=${genre}&language=${language}`}
@@ -203,8 +206,8 @@ const ViewOneSong = () => {
             <div className="flex gap-2 print:hidden">
               <button
                 onClick={handleFavorite}
-                className={`icon-btn !h-11 !w-11 ${
-                  favorite ? "!border-orange-300 !text-orange-500" : ""
+                className={`icon-btn h-11! w-11! ${
+                  favorite ? "border-orange-300! text-orange-500!" : ""
                 }`}
                 title={
                   !currentUser
@@ -216,21 +219,21 @@ const ViewOneSong = () => {
               >
                 <Icon name="heart" filled={favorite} className="h-5 w-5" />
               </button>
-              <button onClick={handleShare} className="icon-btn !h-11 !w-11" title="Copy link">
+              <button onClick={handleShare} className="icon-btn h-11! w-11!" title="Copy link">
                 <Icon name="link" className="h-5 w-5" />
               </button>
               {isOwner && (
                 <>
                   <Link
                     href={`/addsong?edit=1&genre=${genre}&language=${language}&name=${encodeURIComponent(name)}`}
-                    className="icon-btn !h-11 !w-11"
+                    className="icon-btn h-11! w-11!"
                     title="Edit song"
                   >
                     <Icon name="edit" className="h-5 w-5" />
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="icon-btn !h-11 !w-11 hover:!border-red-300 hover:!text-red-500"
+                    className="icon-btn h-11! w-11! hover:border-red-300! hover:text-red-500!"
                     title="Delete song"
                   >
                     <Icon name="trash" className="h-5 w-5" />
@@ -292,7 +295,7 @@ const ViewOneSong = () => {
               Scroll
             </span>
             <button
-              className={`icon-btn ${isScrolling ? "!border-orange-500 !bg-orange-500 !text-white" : ""}`}
+              className={`icon-btn ${isScrolling ? "border-orange-500! bg-orange-500! text-white!" : ""}`}
               onClick={() => setIsScrolling(!isScrolling)}
               aria-label={isScrolling ? "Stop scrolling" : "Start scrolling"}
               title="Space"
@@ -353,4 +356,9 @@ const ViewOneSong = () => {
   );
 };
 
-export default ViewOneSong;
+const SongPage = () => {
+  const router = useRouter();
+  return <ViewOneSong key={router.asPath} />;
+};
+
+export default SongPage;

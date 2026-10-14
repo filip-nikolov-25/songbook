@@ -56,7 +56,7 @@ const SignIn = () => {
           </>
         ) : (
           <>
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/30">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-orange-400 to-orange-600 text-white shadow-md shadow-orange-500/30">
               <Icon name="music" className="h-6 w-6" />
             </span>
             <h1 className="mt-6 text-3xl font-bold">Your music belongs here</h1>
@@ -84,7 +84,7 @@ const SignIn = () => {
         )}
       </div>
 
-      <div className="relative hidden aspect-square overflow-hidden rounded-[2rem] shadow-2xl shadow-orange-900/20 lg:block">
+      <div className="relative hidden aspect-square overflow-hidden rounded-4xl shadow-2xl shadow-orange-900/20 lg:block">
         <Image
           src="/Images/ManPlayingAcousticGuitar.jpg"
           alt="Man playing an acoustic guitar"
@@ -92,7 +92,7 @@ const SignIn = () => {
           sizes="560px"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-orange-900/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-orange-900/60 via-transparent to-transparent" />
         <p className="absolute bottom-8 left-8 right-8 text-2xl font-semibold text-white">
           &ldquo;The best songbook is the one everyone can add to.&rdquo;
         </p>

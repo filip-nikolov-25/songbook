@@ -19,22 +19,18 @@ const PAGE_SIZE = 20;
 const AllSongs = () => {
   const router = useRouter();
   const [songs, setSongs] = useState<SongSummary[] | null>(null);
-  const [search, setSearch] = useState("");
+  const [typedSearch, setSearch] = useState<string | null>(null);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   const query = router.query as Record<string, string | undefined>;
   const genre = query.genre || "";
   const language = query.language || "";
   const sort = query.sort || "newest";
+  const search = typedSearch ?? query.q ?? "";
 
   useEffect(() => {
     getAllSongs().then(setSongs);
   }, []);
-
-  useEffect(() => {
-    if (router.isReady) setSearch(query.q || "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady]);
 
   const updateQuery = (changes: Record<string, string>) => {
     const next = { ...query, ...changes };
@@ -157,7 +153,7 @@ const AllSongs = () => {
         {hasFilters && (
           <button
             onClick={() => {
-              setSearch("");
+              setSearch(null);
               router.replace("/allsongs", undefined, { shallow: true });
             }}
             className="font-medium text-orange-600 hover:underline"

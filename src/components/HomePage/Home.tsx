@@ -73,7 +73,7 @@ const Home = () => {
   return (
     <div className="overflow-hidden">
       <section className="relative">
-        <div className="absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-orange-200/50 blur-3xl" />
+        <div className="absolute -top-40 -right-40 h-128 w-lg rounded-full bg-orange-200/50 blur-3xl" />
         <div className="absolute top-60 -left-40 h-80 w-80 rounded-full bg-amber-100 blur-3xl" />
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
@@ -84,7 +84,7 @@ const Home = () => {
             </span>
             <h1 className="mt-6 text-5xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
               Play the songs <br />
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
                 you love.
               </span>
             </h1>
@@ -103,7 +103,7 @@ const Home = () => {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search songs or artists"
-                className="min-w-0 flex-1 bg-transparent py-2 focus:outline-none"
+                className="min-w-0 flex-1 bg-transparent py-2 focus:outline-hidden"
               />
               <button type="submit" className="btn-primary">
                 Search
@@ -127,7 +127,7 @@ const Home = () => {
           </div>
 
           <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] shadow-2xl shadow-orange-900/20">
+            <div className="relative aspect-4/5 overflow-hidden rounded-4xl shadow-2xl shadow-orange-900/20">
               <Image
                 src="/Images/HandPlayingChord.jpg"
                 alt="Hand playing a chord on a guitar"
@@ -137,7 +137,7 @@ const Home = () => {
                 className="object-cover"
               />
             </div>
-            <div className="absolute -left-4 bottom-10 rounded-2xl border border-stone-200 bg-white/95 p-4 shadow-xl backdrop-blur sm:-left-10 animate-fade-up [animation-delay:200ms]">
+            <div className="absolute -left-4 bottom-10 rounded-2xl border border-stone-200 bg-white/95 p-4 shadow-xl backdrop-blur-sm sm:-left-10 animate-fade-up [animation-delay:200ms]">
               <div className="flex items-center gap-4">
                 <ChordDiagram chord="Am" />
                 <div className="font-mono text-sm leading-snug">
@@ -169,7 +169,7 @@ const Home = () => {
               <Link
                 key={genre.value}
                 href={`/allsongs?genre=${genre.value}`}
-                className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br p-6 text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl ${GENRE_STYLES[genre.value]}`}
+                className={`group relative overflow-hidden rounded-3xl bg-linear-to-br p-6 text-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl ${GENRE_STYLES[genre.value]}`}
               >
                 <Icon name="music" className="absolute -right-4 -bottom-4 h-28 w-28 opacity-20 transition group-hover:rotate-12" />
                 <p className="text-sm font-medium text-white/80">
@@ -224,7 +224,7 @@ const Home = () => {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-orange-500 to-amber-500 p-10 text-white shadow-2xl shadow-orange-500/30 sm:p-14">
+        <div className="relative overflow-hidden rounded-4xl bg-linear-to-br from-orange-500 to-amber-500 p-10 text-white shadow-2xl shadow-orange-500/30 sm:p-14">
           <Icon name="music" className="absolute -right-10 -top-10 h-64 w-64 opacity-10" />
           <h2 className="max-w-lg text-3xl font-bold sm:text-4xl">
             Know a song that&apos;s missing?

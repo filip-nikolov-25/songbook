@@ -8,7 +8,7 @@ export default function Custom404() {
       <Head>
         <title>Page not found · Songbook</title>
       </Head>
-      <p className="bg-gradient-to-br from-orange-400 to-amber-500 bg-clip-text text-8xl font-bold tracking-tight text-transparent sm:text-9xl">
+      <p className="bg-linear-to-br from-orange-400 to-amber-500 bg-clip-text text-8xl font-bold tracking-tight text-transparent sm:text-9xl">
         404
       </p>
       <h1 className="mt-4 text-2xl font-bold sm:text-3xl">

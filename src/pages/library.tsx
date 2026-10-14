@@ -2,7 +2,7 @@ import Icon, { IconName } from "@/components/base/Icon";
 import SongCard from "@/components/SongCard";
 import { DefaultUserContext } from "@/context/loggedInUserContext";
 import { getFavorites } from "@/functions/favorites";
-import { clearRecent, getRecent } from "@/functions/library";
+import { clearRecent, useRecent } from "@/functions/library";
 import { getAllSongs } from "@/functions/userService";
 import { SongSummary } from "@/types/types";
 import Head from "next/head";
@@ -11,6 +11,7 @@ import { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 
 type Tab = "favorites" | "recent" | "mine";
+type LoadedSongs = { uid: string; songs: SongSummary[] };
 
 const TABS: { value: Tab; label: string; icon: IconName }[] = [
   { value: "favorites", label: "Favorites", icon: "heart" },
@@ -28,30 +29,29 @@ const Library = () => {
   const router = useRouter();
   const { currentUser, authLoading } = useContext(DefaultUserContext);
   const tab = (router.query.tab as Tab) || "favorites";
-  const [favorites, setFavorites] = useState<SongSummary[] | null>(null);
-  const [recent, setRecent] = useState<SongSummary[]>([]);
-  const [mine, setMine] = useState<SongSummary[] | null>(null);
+  const recent = useRecent();
+  const [loadedFavorites, setLoadedFavorites] = useState<LoadedSongs | null>(null);
+  const [loadedMine, setLoadedMine] = useState<LoadedSongs | null>(null);
+  const uid = currentUser?.uid;
+  const favorites = uid && loadedFavorites?.uid === uid ? loadedFavorites.songs : null;
+  const mine = uid && loadedMine?.uid === uid ? loadedMine.songs : null;
 
   useEffect(() => {
-    setRecent(getRecent());
-  }, []);
+    if (tab !== "favorites" || !uid) return;
+    getFavorites(uid).then((songs) => setLoadedFavorites({ uid, songs }));
+  }, [tab, uid]);
 
   useEffect(() => {
-    setFavorites(null);
-    if (tab !== "favorites" || !currentUser) return;
-    getFavorites(currentUser.uid).then(setFavorites);
-  }, [tab, currentUser]);
-
-  useEffect(() => {
-    if (tab !== "mine" || !currentUser) return;
+    if (tab !== "mine" || !uid) return;
     getAllSongs().then((songs) =>
-      setMine(
-        songs
-          .filter((song) => song.authorId === currentUser.uid)
-          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
-      )
+      setLoadedMine({
+        uid,
+        songs: songs
+          .filter((song) => song.authorId === uid)
+          .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+      })
     );
-  }, [tab, currentUser]);
+  }, [tab, uid]);
 
   const songs = { favorites: favorites || [], recent, mine: mine || [] }[tab];
   const needsAccount = tab !== "recent";
@@ -80,7 +80,7 @@ const Library = () => {
             }
             className={`flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
               tab === item.value
-                ? "bg-white text-orange-600 shadow-sm"
+                ? "bg-white text-orange-600 shadow-xs"
                 : "text-stone-500 hover:text-stone-900"
             }`}
           >
@@ -95,7 +95,6 @@ const Library = () => {
           <button
             onClick={() => {
               clearRecent();
-              setRecent([]);
             }}
             className="text-sm font-medium text-stone-500 hover:text-orange-600"
           >
